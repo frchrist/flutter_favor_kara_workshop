@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kara_workshop/favorState.dart';
+import 'package:kara_workshop/model/favor.dart';
 
-class RefusingScreen extends StatefulWidget {
+class RefusingScreen extends ConsumerStatefulWidget {
   const RefusingScreen({super.key});
 
   @override
-  State<RefusingScreen> createState() => _RefusingScreenState();
+  ConsumerState<RefusingScreen> createState() => _RefusingScreenState();
 }
 
-class _RefusingScreenState extends State<RefusingScreen> {
+class _RefusingScreenState extends ConsumerState<RefusingScreen> {
   @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        Card(
+   Widget build(BuildContext context) {
+    final acceptedFavor = ref.watch(favorProvider).where((element) => element.favorState == FavorState.rejected).toList();
+    return ListView.builder(itemBuilder:  (context, index) => Card(
           child: ListTile(
             leading: CircleAvatar(
-              child: Text("O"),
+              child: Text(acceptedFavor[index].friendName[0]),
             ),
-            title: Text("Prêt d'argent"),
-            subtitle: Text("J'ai envie de m'offrir un core i9 à 150.000 Fcfa."),
+            title: Text(acceptedFavor[index].motif),
+            subtitle: Text(acceptedFavor[index].description),
           ),
-        )
-      ],
-    );
+        ) , itemCount: acceptedFavor.length);
   }
 }

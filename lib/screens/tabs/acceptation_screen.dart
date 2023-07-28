@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kara_workshop/favorState.dart';
+import 'package:kara_workshop/model/favor.dart';
 
-class AcceptationScreen extends StatefulWidget {
+class AcceptationScreen extends ConsumerStatefulWidget {
   const AcceptationScreen({super.key});
 
   @override
-  State<AcceptationScreen> createState() => _AcceptationScreenState();
+  ConsumerState<AcceptationScreen> createState() => _AcceptationScreenState();
 }
 
-class _AcceptationScreenState extends State<AcceptationScreen> {
+class _AcceptationScreenState extends ConsumerState<AcceptationScreen> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        Card(
+    final acceptedFavor = ref.watch(favorProvider).where((element) => element.favorState == FavorState.accepted).toList();
+    return ListView.builder(itemBuilder:  (context, index) => Card(
           child: ListTile(
             leading: CircleAvatar(
-              child: Text("O"),
+              child: Text(acceptedFavor[index].friendName[0]),
             ),
-            title: Text("Prêt d'argent"),
-            subtitle: Text("J'ai envie de m'offrir un core i9 à 150.000 Fcfa."),
+            title: Text(acceptedFavor[index].motif),
+            subtitle: Text(acceptedFavor[index].description),
           ),
-        )
-      ],
-    );
+        ) , itemCount: acceptedFavor.length);
   }
 }

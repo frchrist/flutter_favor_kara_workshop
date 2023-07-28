@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kara_workshop/favorState.dart';
+import 'package:kara_workshop/model/favor.dart';
 
-class WaitingScreen extends StatefulWidget {
+class WaitingScreen extends ConsumerStatefulWidget {
   const WaitingScreen({super.key});
 
   @override
-  State<WaitingScreen> createState() => _WaitingScreenState();
+  ConsumerState<WaitingScreen> createState() => _WaitingScreenState();
 }
 
-class _WaitingScreenState extends State<WaitingScreen> {
+class _WaitingScreenState extends ConsumerState<WaitingScreen> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Card(
+    final pendingFavor = ref.watch(favorProvider).where((element) => element.favorState == FavorState.pending).toList();
+
+    return ListView.builder(
+      itemCount: pendingFavor.length,
+      itemBuilder: (context, index) {
+      return Card(
           child: Column(
             children: [
               ListTile(
                 leading: CircleAvatar(
-                  child: Text("O"),
+                  child: Text(pendingFavor[index].friendName[0]),
                 ),
-                title: Text("Prêt d'argent"),
+                title: Text(pendingFavor[index].motif),
                 subtitle:
-                    Text("J'ai envie de m'offrir un core i9 à 150.000 Fcfa."),
+                    Text(pendingFavor[index].description),
               ),
               Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ref.read(favorProvider.notifier).changeFavorState(pendingFavor[index].id, FavorState.accepted);
+                    },
                     icon: Icon(Icons.check),
                     style: IconButton.styleFrom(
                         backgroundColor: Colors.green.shade500,
@@ -37,7 +45,10 @@ class _WaitingScreenState extends State<WaitingScreen> {
                             borderRadius: BorderRadius.circular(10))),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ref.read(favorProvider.notifier).changeFavorState(pendingFavor[index].id, FavorState.rejected);
+
+                    },
                     icon: Icon(Icons.delete),
                     style: IconButton.styleFrom(
                         backgroundColor: Colors.red.shade400,
@@ -49,8 +60,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
               )
             ],
           ),
-        )
-      ],
-    );
+        );
+    },);
   }
 }
