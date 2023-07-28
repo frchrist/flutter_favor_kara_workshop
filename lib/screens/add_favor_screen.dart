@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class AddFavorScreen extends StatefulWidget {
   const AddFavorScreen({super.key});
@@ -9,6 +10,26 @@ class AddFavorScreen extends StatefulWidget {
 
 class _AddFavorScreenState extends State<AddFavorScreen> {
   List<String> names = ["Jérémie", "Aïcha", "Thierry", "Esther"];
+  late String name;
+  TextEditingController _motifController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  var appFavor = Hive.box("app_data");
+
+  Future addFavor(
+      String name, String motif, String description, String date) async {
+    Map<String, String> favor = {
+      "name": name,
+      "motif": motif,
+      "description": description,
+      "date": date
+    };
+    List<dynamic> favorList = appFavor.get("favors", defaultValue: []);
+    favorList.add(favor);
+
+    appFavor.put("favors", favorList);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,9 +45,16 @@ class _AddFavorScreenState extends State<AddFavorScreen> {
                 bottomRight: Radius.circular(30))),
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        // validation Data
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            addFavor(name, _motifController.text, _descriptionController.text,
+                    _dateController.text)
+                .then((value) {
+              ;
+            });
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [Text("VALIDER"), Icon(Icons.add)],
@@ -48,39 +76,45 @@ class _AddFavorScreenState extends State<AddFavorScreen> {
                         value: name,
                       ))
                   .toList(),
-              onChanged: (value) {},
-              decoration: InputDecoration(
+              onChanged: (value) {
+                name = value!;
+              },
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), hintText: "Choisir un ami"),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             TextFormField(
-              decoration: InputDecoration(
+              controller: _motifController,
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), hintText: "Taper le motif"),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             TextFormField(
               maxLines: 4,
-              decoration: InputDecoration(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: "Taper la description"),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             TextFormField(
-              onTap: () {
-                showDatePicker(
+              controller: _dateController,
+              onTap: () async {
+                DateTime? date = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(),
                     firstDate: DateTime.now(),
                     lastDate: DateTime(2050, 12, 31));
+                _dateController.text = date.toString().split(" ")[0];
               },
               readOnly: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), hintText: "Choisir une date"),
             )
           ],
